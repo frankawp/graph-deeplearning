@@ -1,0 +1,57 @@
+# 分布式训练配置
+
+# 模型配置
+model_type: "sage"           # sage, gat, rgcn
+hidden_channels: 256
+num_layers: 3
+num_heads: 4                 # 仅用于GAT
+dropout: 0.5
+num_classes: 10
+
+# 目标节点类型（用于节点分类任务）
+target_node_type: "user"
+
+# 训练配置
+num_epochs: 100
+batch_size: 1024
+learning_rate: 0.001
+weight_decay: 0.0
+
+# 邻居采样配置
+fanouts: [15, 10, 5]
+
+# 学习率调度
+lr_scheduler:
+  type: "reduce_on_plateau"
+  factor: 0.5
+  patience: 5
+
+# 早停配置
+early_stopping:
+  patience: 15
+  min_delta: 0.001
+
+# 检查点配置
+checkpoint_path: "/data/checkpoints"
+checkpoint_interval: 10
+
+# 日志配置
+log_path: "/data/logs"
+log_level: "INFO"
+
+# 数据路径
+partition_path: "/data/graph_partitions"
+
+# Redis配置（用于特征缓存）
+redis:
+  host: "redis-master"
+  port: 6379
+  db: 0
+
+# 图服务配置
+graph_service:
+  endpoints:
+    - "http://node-01:8080"
+    - "http://node-02:8080"
+    - "http://node-03:8080"
+    - "http://node-04:8080"

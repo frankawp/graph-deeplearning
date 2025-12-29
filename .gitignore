@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+env/
+*.egg-info/
+dist/
+build/
+eggs/
+*.egg
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data
+*.parquet
+*.npy
+*.npz
+*.pt
+*.pth
+*.mar
+
+# Logs
+logs/
+*.log
+
+# Checkpoints
+checkpoints/
+model-store/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp
+*.tmp
+*.temp
+
+# Claude
+.claude/

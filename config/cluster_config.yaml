@@ -1,0 +1,58 @@
+# 分布式图学习集群配置
+
+cluster:
+  name: "graph_learning_cluster"
+  total_nodes: 32
+  memory_per_node_gb: 200
+
+# 角色分配
+# 方案1: 专用角色（推荐用于超大规模图）
+roles:
+  server_nodes: 8        # 存储图分区和特征
+  sampler_nodes: 8       # 分布式采样
+  trainer_nodes: 16      # 模型训练
+
+# 方案2: 混合角色（每台机器同时运行多个角色）
+# combined_mode: true
+# per_node:
+#   num_servers: 1
+#   num_samplers: 1
+#   num_trainers: 1
+
+# 资源分配（每台200GB内存）
+resource_allocation:
+  graph_partition_gb: 100    # 50% - 图分区存储
+  feature_store_gb: 50       # 25% - 特征服务
+  model_training_gb: 40      # 20% - 模型训练
+  system_reserve_gb: 10      # 5%  - 系统预留
+
+# 网络配置
+network:
+  master_host: "node-01"
+  master_port: 29500
+  rpc_port: 30000
+
+# 分布式训练配置
+distributed:
+  backend: "gloo"            # CPU训练使用gloo
+  num_epochs: 100
+  batch_size: 1024
+  learning_rate: 0.001
+
+# 邻居采样配置
+sampling:
+  fanouts: [15, 10, 5]       # 每层采样的邻居数
+  num_workers: 4
+
+# 模型配置
+model:
+  hidden_channels: 256
+  num_layers: 3
+  dropout: 0.5
+  conv_type: "sage"          # sage, gat, rgcn
+
+# 数据路径
+paths:
+  partition_path: "/data/graph_partitions"
+  checkpoint_path: "/data/checkpoints"
+  log_path: "/data/logs"
