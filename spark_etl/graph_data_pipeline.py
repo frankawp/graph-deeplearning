@@ -310,17 +310,34 @@ class GraphDataPipeline:
 
         # 写入JSON文件
         metadata_path = os.path.join(self.output_path, 'metadata.json')
+        temp_path = os.path.join(self.output_path, 'metadata_temp')
 
         # 使用Spark写入（避免驱动程序写入问题）
         metadata_df = self.spark.createDataFrame(
             [(json.dumps(metadata),)],
             ['metadata']
         )
-        metadata_df.coalesce(1).write.mode('overwrite').text(
-            os.path.join(self.output_path, 'metadata_temp')
-        )
+        metadata_df.coalesce(1).write.mode('overwrite').text(temp_path)
 
-        print(f"  - 元数据已导出")
+        # 将临时目录中的文件重命名为 metadata.json
+        hadoop_conf = self.spark._jsc.hadoopConfiguration()
+        fs = self.spark._jvm.org.apache.hadoop.fs.FileSystem.get(hadoop_conf)
+        temp_dir = self.spark._jvm.org.apache.hadoop.fs.Path(temp_path)
+
+        # 找到临时目录中的 part 文件
+        file_status = fs.listStatus(temp_dir)
+        for status in file_status:
+            file_name = status.getPath().getName()
+            if file_name.startswith('part-'):
+                src_path = status.getPath()
+                dst_path = self.spark._jvm.org.apache.hadoop.fs.Path(metadata_path)
+                fs.rename(src_path, dst_path)
+                break
+
+        # 删除临时目录
+        fs.delete(temp_dir, True)
+
+        print(f"  - 元数据已导出: {metadata_path}")
 
 
 def main():
